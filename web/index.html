@@ -1,0 +1,41 @@
+<html ng-app="siqApp">
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+
+		
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+		<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+
+	</head>
+	<body ng-controller="siqController as siq">
+		<div class="container">
+			<div class="row" ng-repeat="sig in siq.data">
+				<div class="panel panel-default">
+					<div class="panel-heading" ng-click="siq.panelNum = $index">{{sig.panelHeading}}</div>
+					<div class="panel-body" ng-show="siq.panelNum == $index">{{sig.panelBody}}</div>
+				</div>
+			</div>
+		</div>
+		{{ siq.data | json }}
+		<script>
+			var app = angular.module('siqApp', []);
+			app.controller('siqController', function($scope, $http){
+				var siq = this;
+				debugger;
+				$http.get('http://localhost:3000/api/entries')
+					.then(function(response){
+						debugger;
+						siq.data = response.data;
+					});
+				siq.panelNum = -1;
+			});
+		</script>
+	</body>
+</html>
