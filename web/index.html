@@ -12,14 +12,20 @@
 
 		<script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
-
+		
+		<style>
+			.clickable{
+				cursor: pointer
+			}
+		</style>
+		
 	</head>
 	<body ng-controller="siqController as siq">
 		<div class="container">
-			<div class="row" ng-repeat="sig in siq.data">
+			<div class="row" ng-repeat="entry in siq.data">
 				<div class="panel panel-default">
-					<div class="panel-heading" ng-click="siq.panelNum = $index">{{sig.panelHeading}}</div>
-					<div class="panel-body" ng-show="siq.panelNum == $index">{{sig.panelBody}}</div>
+					<div class="clickable panel-heading"><span ng-click="siq.panelNum = $index">{{entry.subject}}</span><button class="clickable pull-right glyphicon glyphicon-trash text-danger" ng-click="siq.deleteEntry($index)"/></div>
+					<div class="panel-body" ng-show="siq.panelNum == $index">{{entry.contents}}</div>
 				</div>
 			</div>
 		</div>
@@ -28,13 +34,14 @@
 			var app = angular.module('siqApp', []);
 			app.controller('siqController', function($scope, $http){
 				var siq = this;
-				debugger;
 				$http.get('http://localhost:3000/api/entries')
 					.then(function(response){
-						debugger;
 						siq.data = response.data;
 					});
 				siq.panelNum = -1;
+				siq.deleteEntry = function(index){
+					console.log('Tried to delete entry ' + index);
+				}
 			});
 		</script>
 	</body>

@@ -1,7 +1,4 @@
-/**
- * Created by brian on 2/23/16.
- */
-console.log('loading server');
+console.log('Loading Server');
 var fs = require('fs');
 var express = require('express');
 
@@ -16,8 +13,8 @@ var mysql      = require('mysql');
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'Bronco@23',
-  database : 'tysql'
+  password : 'password',
+  database : 'siq'
 });
 
 connection.connect();
@@ -41,14 +38,14 @@ app.use(compression());
 app.use(allowCrossDomain);
 
 var db = [
-        { id:1, panelHeading:"Foo", "panelBody":"All your base are belong to us!" },
+        { id:1, "panelHeading":"Foo", "panelBody":"All your base are belong to us!" },
         { id:2, "panelHeading":"Bar", "panelBody":"I can haz cheesburger?" },
         { id:3, "panelHeading":"Baz", "panelBody":"Hooked on phonics worked for me!" }
 ];
 
 //REST API calls go here.
 app.get('/api/testdb', function(req, res){
-	connection.query("SELECT cust_id as 'id', cust_name as 'Name', cust_zip as 'Zip' from customers", function(err, rows, fields) {
+	connection.query("select * from entries", function(err, rows, fields) {
 		if (err) throw err;
 		//console.log('The solution is: ', rows[0].solution);
 		res.json(rows);
@@ -56,13 +53,11 @@ app.get('/api/testdb', function(req, res){
 });
 
 app.get('/api/entries', function(req, res) {
-    var headings = _.map(db, function(entry){
-        var heading = {};
-        heading.id = entry.id;
-        heading.panelHeading = entry.panelHeading;
-        return heading;
-    });
-    res.json(headings);
+    connection.query("select * from entries", function(err, rows, fields) {
+		if (err) throw err;
+		//console.log('The solution is: ', rows[0].solution);
+		res.json(rows);
+	});
 });
 
 // IDEMPOTENT - You can repeat the operation as many times as you want without changing state.
@@ -101,10 +96,10 @@ var port = process.env.port || 3000;
 var server = app.listen(port);
 
 function gracefullShutdown(){
-	console.log('\n starting shut down');
+	console.log('\nStarting Shutdown');
 	server.close(function(){
 		connection.end();
-		console.log('Shut down complete');
+		console.log('\nShutdown Complete');
 	});
 }
 
@@ -115,8 +110,6 @@ process.on('SIGTERM', function(){
 process.on('SIGINT', function(){
 	gracefullShutdown();
 });
-
-
 
 console.log(`Listening on port ${port}`);
 
