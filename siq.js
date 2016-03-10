@@ -53,7 +53,7 @@ app.get('/api/testdb', function(req, res){
 });
 
 app.get('/api/entries', function(req, res) {
-    connection.query("select * from entries", function(err, rows, fields) {
+    connection.query("select subject, id from entries", function(err, rows, fields) {
 		if (err) throw err;
 		//console.log('The solution is: ', rows[0].solution);
 		res.json(rows);
@@ -69,7 +69,10 @@ app.post('/api/entries', function(req, res){
 // Read
 app.get('/api/entries/:id', function(req, res){
     var id = req.params.id;
-    res.json(db[id - 1]);
+    connection.query(`select * from entries where id = ${id}`, function(err, rows, fields) {
+        if (err) throw err;
+        res.json(rows[0]);
+    });
 });
 
 // Update
@@ -79,7 +82,12 @@ app.put('/api/entries/:id', function(req, res){
 
 // Delete
 app.delete('/api/entries/:id', function(req, res){
-
+    var id = req.params.id;
+    connection.query(`delete from entries where id = ${id}`, function(err, rows, fields) {
+        if (err) throw err;
+    });
+    console.log("server delete ");
+    res.sendStatus(200);
 });
 
 //traditional webserver stuff for serving static files
