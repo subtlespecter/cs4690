@@ -13,7 +13,7 @@ var mysql      = require('mysql');
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
-  password : 'password',
+  password : 'root',
   database : 'siq'
 });
 
@@ -64,11 +64,23 @@ app.get('/api/entries', function(req, res) {
 // Create
 app.post('/api/entries', function(req, res){
     // Store new entry and return id.
+    console.log(req.body);
+    // {"subject":"Two","content":"content2"}
+    var subject = req.body.subject;
+    var content = req.body.content;
+
+    // TODO escape query for SQL injection
+    connection.query(`INSERT INTO entries (subject, content) VALUES( '${subject}', '${content}')`, function(err, rows, fields) {
+        if (err) throw err;
+        res.json(rows.insertId);
+    });
 });
 
 // Read
 app.get('/api/entries/:id', function(req, res){
-    var id = req.params.id;
+    var id = connection.escape(req.params.id);
+    //var id = req.params.id;
+    console.log(`select * from entries where id = ${id}`);
     connection.query(`select * from entries where id = ${id}`, function(err, rows, fields) {
         if (err) throw err;
         res.json(rows[0]);
@@ -82,7 +94,7 @@ app.put('/api/entries/:id', function(req, res){
 
 // Delete
 app.delete('/api/entries/:id', function(req, res){
-    var id = req.params.id;
+    var id = connection.escape(req.params.id);
     connection.query(`delete from entries where id = ${id}`, function(err, rows, fields) {
         if (err) throw err;
     });
@@ -106,6 +118,7 @@ var server = app.listen(port);
 function gracefullShutdown(){
 	console.log('\nStarting Shutdown');
 	server.close(function(){
+        console.log("before end call");
 		connection.end();
 		console.log('\nShutdown Complete');
 	});
