@@ -40,19 +40,23 @@
 					<label for="content">Content</label>
 					<textarea id="content" class="form-control" rows="3"></textarea>
 				</div>
-				<button type="submit" class="btn btn-default">Submit</button>
+				<button type="submit" class="btn btn-default" ng-click="siq.postEntry('subjectx','contentx')">Submit</button>
 			</form>
 		</div>
 		<pre>{{ siq.data | json }}</pre>
 		<script>
 			var app = angular.module('siqApp', []);
 			app.controller('siqController', function($scope, $http){
+				
 				var siq = this;
+				
 				$http.get('http://localhost:3000/api/entries')
 					.then(function(response){
 						siq.data = response.data;
 					});
+				
 				siq.panelNum = -1;
+				
 				siq.getEntry = function(index) {
 					siq.panelNum = index;
 					var id = siq.data[index].id;
@@ -61,10 +65,31 @@
 								siq.data[index] = response.data;
 							});
 				}
+
 				siq.deleteEntry = function(index){
 					var id = siq.data[index].id;
 					siq.data.splice(index, 1);
 					$http.delete('http://localhost:3000/api/entries/' + id);
+				}
+
+				siq.postEntry = function(subject, content){
+					// {"subject":"Two","content":"content2"}
+					var entry = {};
+					entry.subject = subject;
+					entry.content = content;
+					$http.post('http://localhost:3000/api/entries', entry)
+					.then(function(res) {
+					    // this callback will be called asynchronously
+					    // when the response is available
+
+					    console.log("Success: " + res.data);
+					    entry.id = res.data;
+					    siq.data.push(entry);
+					}, function(res) {
+					    // called asynchronously if an error occurs
+					    // or server returns response with an error status.
+					    console.log("Error: " + res.data);
+					});
 				}
 			});
 		</script>
