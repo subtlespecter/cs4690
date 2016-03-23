@@ -26,7 +26,10 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<span ng-click="siq.getEntry($index)" class ="clickable">{{entry.subject}}</span>
-						<span class="clickable pull-right glyphicon glyphicon-trash text-danger" ng-click="siq.deleteEntry($index)"></span>
+						<span class="pull-right">
+							<span class="clickable glyphicon glyphicon-pencil text-success" ng-click="siq.updateEntry($index)"></span> &nbsp;
+							<span class="clickable glyphicon glyphicon-trash text-danger" ng-click="siq.deleteEntry($index)"></span>
+						</span>
 					</div>
 					<div class="panel-body" ng-show="siq.panelNum == $index">{{entry.content}}</div>
 				</div>
@@ -70,6 +73,15 @@
 					var id = siq.data[index].id;
 					siq.data.splice(index, 1);
 					$http.delete('http://localhost:3000/api/entries/' + id);
+				}
+				
+				siq.updateEntry = function(index){
+					var id = siq.data[index].id;
+					var entry = {};
+					entry.subject = subject;
+					entry.content = content;					
+					$http.put('http://localhost:3000/api/entries/' + id, entry);
+					
 				}
 
 				siq.postEntry = function(subject, content){

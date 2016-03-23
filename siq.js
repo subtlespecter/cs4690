@@ -56,7 +56,7 @@ app.get('/api/entries', function(req, res) {
     connection.query("select subject, id from entries", function(err, rows, fields) {
 		if (err) throw err;
 		//console.log('The solution is: ', rows[0].solution);
-		res.json(rows);
+		res.status(200).json(rows);
 	});
 });
 
@@ -66,13 +66,13 @@ app.post('/api/entries', function(req, res){
     // Store new entry and return id.
     console.log(req.body);
     // {"subject":"Two","content":"content2"}
-    var subject = req.body.subject;
-    var content = req.body.content;
+    var subject = connection.escape(req.body.subject);
+    var content = connection.escape(req.body.content);
 
     // TODO escape query for SQL injection
     connection.query(`INSERT INTO entries (subject, content) VALUES( '${subject}', '${content}')`, function(err, rows, fields) {
         if (err) throw err;
-        res.json(rows.insertId);
+        res.status(201).json(rows.insertId);
     });
 });
 
@@ -83,13 +83,23 @@ app.get('/api/entries/:id', function(req, res){
     console.log(`select * from entries where id = ${id}`);
     connection.query(`select * from entries where id = ${id}`, function(err, rows, fields) {
         if (err) throw err;
-        res.json(rows[0]);
+        res.status(200).json(rows[0]);
     });
 });
 
 // Update
 app.put('/api/entries/:id', function(req, res){
-
+	var id = connection.escape(req.params.id);
+	console.log(req.body);
+    // {"subject":"Two","content":"content2"}
+    var subject = connection.escape(req.body.subject);
+    var content = connection.escape(req.body.content);
+	//UPDATE siq.entries SET content = 'foo', subject = 'bar' WHERE id = 12
+	connection.query(`update entries set subject = ${subject}, content = ${content} where id = ${id}`, function(err, rows, fields) {
+        if (err) throw err;
+    });
+    console.log("server update");
+    res.sendStatus(204);
 });
 
 // Delete
@@ -98,8 +108,8 @@ app.delete('/api/entries/:id', function(req, res){
     connection.query(`delete from entries where id = ${id}`, function(err, rows, fields) {
         if (err) throw err;
     });
-    console.log("server delete ");
-    res.sendStatus(200);
+    console.log("server delete");
+    res.sendStatus(204);
 });
 
 //traditional webserver stuff for serving static files
