@@ -2,14 +2,23 @@ var app = angular.module('siqApp', []);
 app.controller('siqController', function($scope, $http){
 	
 	var siq = this;
+	siq.undo = [];
 	
 	$http.get('http://bsedgwick.com:8080/api/v2/entries.json')
 		.then(function(response){
 			siq.data = response.data;
 		});
-	
+	siq.index = -1;
 	siq.panelNum = -1;
-	
+	siq.upsertEntry = function(subject, contents){
+		if(siq.operation === 'New Entry'){
+			siq.postEntry(subject, contents);
+		}
+		else{
+			siq.updateEntry(siq.index, subject, contents);
+		}
+	};
+
 	siq.getEntry = function(index){
 		siq.panelNum = index;
 		var id = siq.data[index]._id;
@@ -19,18 +28,19 @@ app.controller('siqController', function($scope, $http){
 			.then(function(response){
 				siq.data[index] = response.data;
 			});
-	}
+	};
 
 	siq.updateEntry = function(index, subject, contents){
 		var id = siq.data[index]._id;
 		var entry = {};
 		entry.subject = subject;
 		entry.contents = contents;
+		siq.data[index] = entry;
 		$http.put('http://bsedgwick.com:8080/api/v2/entries/' + id + '.json', entry)
 			.then(function(response){
 				console.log("update finished with status '" + response.data + "'");
 			});
-	}
+	};
 
 	siq.deleteEntry = function(index){
 		console.log('deleting ' + index + '...');

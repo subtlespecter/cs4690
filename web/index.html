@@ -10,7 +10,7 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
     <script src="scripts/modal.js"></script>
     
@@ -23,25 +23,52 @@
           <div class="panel-heading" ng-click="siq.getEntry($index)">
             <span class="clickable">{{entry.subject}}</span>
             <span class="pull-right">
-              <span class="glyphicon glyphicon-pencil text-info clickable" ng-click="siq.updateEntry($index, siqSubject, siqContents)"></span>
+              <span class="glyphicon glyphicon-pencil text-info clickable" data-toggle="modal" data-target="#upsertModal" ng-click="siq.operation = 'Edit Entry'; siq.index = $index;"></span>
               <span class="glyphicon glyphicon-trash text-danger clickable" ng-click="siq.deleteEntry($index)"></span>
             </span>
           </div>
           <div class="panel-body" ng-show="siq.panelNum == $index">{{entry.contents}}</div>
         </div>
       </div>
-      <div id="input-row" class="row bg-info">
-        <form id="newSiqForm">
-          <label>New Entry</label>
-          <div class="form-group">
-            <input type="text" class="form-control" id="subject" placeholder="Subject" ng-model="siqSubject">
-          </div>
-          <div class="form-group">
-            <textarea id="content" class="form-control" rows="3" placeholder="Content" ng-model="siqContents"></textarea>
-          </div>
-          <button type="submit" class="btn btn-default" ng-click="siq.postEntry(siqSubject,siqContents)">Submit</button>
-        </form>
+      
+      <div class="row">
+        <button data-toggle="modal" data-target="#upsertModal" class="btn btn-default" ng-click="siq.operation = 'New Entry'">New Entry</button>
       </div>
+
+      <!-- Modal -->
+      <div id="upsertModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">{{siq.operation}}</h4>
+          </div>
+          <div class="modal-body">
+            <div id="input-row" class="row">
+              <form id="newSiqForm">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="subject" placeholder="Subject" ng-model="siqSubject">
+                </div>
+                <div class="form-group">
+                  <textarea id="content" class="form-control" rows="3" placeholder="Content" ng-model="siqContents"></textarea>
+                </div>
+                
+              </form>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-default" data-dismiss="modal" ng-click="siq.upsertEntry(siqSubject,siqContents)">Submit</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+
+        </div>
+      </div>
+
+
+
     </div>
     <pre>{{ siq.data | json }}</pre>
     <script src="scripts/siqController.js"></script>
