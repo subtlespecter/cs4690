@@ -1,4 +1,7 @@
-console.log('Loading Server');
+/**
+ * Created by brian on 2/23/16.
+ */
+console.log('Loading...');
 var fs = require('fs');
 var express = require('express');
 
@@ -7,32 +10,9 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var compression = require('compression');
 var favicon = require('serve-favicon');
-var _ = require('underscore');
+var mysql = require('mysql');
 var mongo = require('mongodb');
-var mongoclient = mongo.MongoClient;
-/*
- var mysql = require('mysql');
- var connection = mysql.createConnection({ // CHANGE YOUR DATABASE INFORMATION HERE ***
- host     : 'localhost',
- user     : 'root',
- password : 'root',
- database : 'siq' });
-
- connection.connect();
- */
-//var url = 'mongodb://localhost:27017/myproject';
-mongoclient.connect('mongodb://localhost:27017/test', function(err, db) {
-    if (err) {
-        throw err;
-    }
-    db.collection('entries').find().toArray(function(err, result) {
-        if (err) {
-            throw err;
-        }
-        console.log(result);
-    });
-});
-
+var mongoClient = mongo.MongoClient;
 var app = express();
 
 var allowCrossDomain = function(req, res, next) {
@@ -41,7 +21,7 @@ var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Headers', 'Content-Type');
 
     next();
-};
+}
 
 app.use(bodyParser.json());
 
@@ -51,197 +31,208 @@ app.use(compression());
 
 app.use(allowCrossDomain);
 
-var db = [
-    { id:1, "panelHeading":"Foo", "panelBody":"All your base are belong to us!" },
-    { id:2, "panelHeading":"Bar", "panelBody":"I can haz cheesburger?" },
-    { id:3, "panelHeading":"Baz", "panelBody":"Hooked on phonics worked for me!" }
-];
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'phL@!!nds:gh3t:)',
+    database: 'siq'
+});
 
-//REST API calls go here.
-app.get('/api/v1/entries.json', function(req, res) {
-    mongoclient.connect('mongodb://localhost:27017/test', function(err, db) {
+connection.connect();
+
+// MongoDB Connection Initialization.
+
+
+
+// REST API V2 calls go here.
+app.get('/api/v2/entries.json', function(req, res) {
+    mongoClient.connect('mongodb://localhost:27017/test', function(err, db) {
         if (err) {
             throw err;
         }
-        db.collection('entries').find({},{subject:1}).toArray(function (err, result) {
+        db.collection('entries').find({},{subject:1}).toArray(function(err, result) {
             if (err) {
                 throw err;
             }
             res.status(200).json(result);
             db.close();
         });
-
     });
-    //connection.query("select subject, id from entries", function(err, rows, fields) {
-    //    if (err) throw err;
-    //console.log('The solution is: ', rows[0].solution);
-    //    res.status(200).json(rows);
-    //});
 });
 
-// IDEMPOTENT - You can repeat the operation as many times as you want without changing state.
 // Create
-app.post('/api/v1/entries.json', function(req, res){
-    /*
-     // Store new entry and return id.
-     console.log(req.body);
-     // {"subject":"Two","content":"content2"}
-     var subject = connection.escape(req.body.subject);
-     var content = connection.escape(req.body.content);
+app.post('/api/v2/entries.json', function(req, res){
+    // Store new entry and return id.
+    console.log(req.body);
+    // {"subject":"Something else","contents":"This is the contents for 'Something else'"}
+    var newObj = {};
+    newObj.subject = req.body.subject;
+    newObj.contents = req.body.contents;
 
-     connection.query(`INSERT INTO entries (subject, content) VALUES( ${subject}, ${content})`, function(err, rows, fields) {
-     if (err) throw err;
-     res.status(201).json(rows.insertId);
-     });
-     */
-    mongoclient.connect('mongodb://localhost:27017/test', function(err, db) {
+    mongoClient.connect('mongodb://localhost:27017/test', function(err, db) {
         if (err) {
             throw err;
         }
-        db.collection('entries').insert(req.body, function (err, result) {
+        db.collection('entries').insert(newObj, function(err, result) {
             if (err) {
                 throw err;
             }
-            res.status(201).json(result);
+            res.status(201).json(result.ops[0]._id);
             db.close();
         });
     });
 });
 
 // Read
-app.get('/api/v1/entries/:id.json', function(req, res){
-    /*
-     var id = connection.escape(req.params.id);
-     //var id = req.params.id;
-     console.log(`select * from entries where id = ${id}`);
-     connection.query(`select * from entries where id = ${id}`, function(err, rows, fields) {
-     if (err) throw err;
-     res.status(200).json(rows[0]);
-     });
-     */
-    var id = req.params.id;
-    mongoclient.connect('mongodb://localhost:27017/test', function(err, db) {
+app.get('/api/v2/entries/:id.json', function(req, res){
+    var id = new mongo.ObjectId(req.params.id);
+
+    mongoClient.connect('mongodb://localhost:27017/test', function(err, db) {
         if (err) {
             throw err;
         }
-        db.collection('entries').find({_id:id}).toArray(function (err, result) {
+        console.log(`Checking mongodb for _id:${id}`);
+        //find({_id:ObjectId("56fab77f6ab3ead947e97973")})
+        db.collection('entries').find({_id:id}).toArray(function(err, result) {
             if (err) {
+                console.log(`Reading _id ${id} failed: ${err}`)
                 throw err;
             }
-            console.log(result[0]);
-            res.status(200).json(result[0]);
+            console.log(`Reading _id succeeded with result: ${result[0]}`)
+            res.status(201).json(result[0]);
             db.close();
         });
     });
 });
 
 // Update
+app.put('/api/v2/entries/:id.json', function(req, res){
+    var object = {};
+    var id = new mongo.ObjectId(req.params.id);
+    var subject = req.body.subject;
+    var contents = req.body.contents;
+    
+    object._id = id;
+    object.subject = subject;
+    object.contents = contents;
+
+    mongoClient.connect('mongodb://localhost:27017/test', function(err, db) {
+        if (err) {
+            throw err;
+        }
+        db.collection('entries').update({_id:id}, object, function(err, result) {
+            if (err) {
+                console.log(`Updating _id ${id} failed: ${err}`)
+                throw err;
+            }
+            console.log(`Updating _id succeeded with result: ${result}`)
+            res.sendStatus(204);
+            db.close();
+        });
+    });
+});
+
+// Delete
+app.delete('/api/v2/entries/:id', function(req, res){
+    var id = new mongo.ObjectId(req.params.id);
+
+    mongoClient.connect('mongodb://localhost:27017/test', function(err, db) {
+        if (err) {
+            throw err;
+        }
+        console.log(`Checking mongodb for _id:${id}`);
+        //find({_id:ObjectId("56fab77f6ab3ead947e97973")})
+        db.collection('entries').remove({_id:id}, function(err, result) {
+            if (err) {
+                console.log(`Deleting _id ${id} failed: ${err}`)
+                throw err;
+            }
+            console.log(`Deleting _id succeeded with result: ${result}`)
+            res.sendStatus(204);
+            db.close();
+        });
+    });
+});
+// END REAST API V2 CALLS.
+
+/**************************************************************************************************************************************/
+
+//REST API V1 calls go here.
+app.get('/api/v1/entries.json', function(req, res) {
+    connection.query('select id, subject from entries', function(err, rows, fields){
+        if(err) throw err;
+        res.status(200).json(rows);
+    });
+});
+
+// IDEMPOTENT - You can repeat the operation as many times as you want without changing state.
+// Create
+app.post('/api/v1/entries.json', function(req, res){
+    // Store new entry and return id.
+    console.log(req.body);
+    // {"subject":"Something else","contents":"This is the contents for 'Something else'"}
+    var subject = connection.escape(req.body.subject);
+    var contents = connection.escape(req.body.contents);
+    console.log(`insert into entries(subject, contents) values (${subject}, ${contents})`);
+    connection.query(`insert into entries(subject, contents) values (${subject}, ${contents})`, function(err, results){
+        if(err) throw err;
+        res.status(201).json(results.insertId);
+    });
+});
+
+// Read
+app.get('/api/v1/entries/:id.json', function(req, res){
+    var id = connection.escape(req.params.id);
+    console.log(`select id, subject, contents from entries where id = ${id}`);
+    connection.query(`select id, subject, contents from entries where id = ${id}`, function(err, row, fields){
+        if(err) throw err;
+        res.status(200).json(row[0]);
+    });
+});
+
+// Update
 app.put('/api/v1/entries/:id.json', function(req, res){
     var id = connection.escape(req.params.id);
-    console.log(req.body);
-    // {"subject":"Two","content":"content2"}
     var subject = connection.escape(req.body.subject);
-    var content = connection.escape(req.body.content);
-    //UPDATE siq.entries SET content = 'foo', subject = 'bar' WHERE id = 12
-    connection.query(`update entries set subject = ${subject}, content = ${content} where id = ${id}`, function(err, rows, fields) {
-        if (err) throw err;
+    var contents = connection.escape(req.body.contents);
+    
+    connection.query(`update entries set subject = ${subject}, contents = ${contents} WHERE id = ${id}`, function(err, rows, fields){
+        if(err) throw err;
+        console.log(`update entries set subject = ${subject}, contents = ${contents} WHERE id = ${id}`);
     });
-    console.log("server update");
+    console.log('Update called');
     res.sendStatus(204);
 });
 
 // Delete
 app.delete('/api/v1/entries/:id', function(req, res){
     var id = connection.escape(req.params.id);
-    connection.query(`delete from entries where id = ${id}`, function(err, rows, fields) {
-        if (err) throw err;
+    connection.query(`delete from entries where id = ${id}`, function(err, rows, fields){
+        if(err) throw err;
     });
-    console.log("server delete");
+    console.log('Delete called');
     res.sendStatus(204);
 });
-
-/*
- //REST API calls go here.
- app.get('/api/v1/entries.json', function(req, res) {
- connection.query("select subject, id from entries", function(err, rows, fields) {
- if (err) throw err;
- //console.log('The solution is: ', rows[0].solution);
- res.status(200).json(rows);
- });
- });
-
- // IDEMPOTENT - You can repeat the operation as many times as you want without changing state.
- // Create
- app.post('/api/v1/entries.json', function(req, res){
- // Store new entry and return id.
- console.log(req.body);
- // {"subject":"Two","content":"content2"}
- var subject = connection.escape(req.body.subject);
- var content = connection.escape(req.body.content);
-
- connection.query(`INSERT INTO entries (subject, content) VALUES( ${subject}, ${content})`, function(err, rows, fields) {
- if (err) throw err;
- res.status(201).json(rows.insertId);
- });
- });
-
- // Read
- app.get('/api/v1/entries/:id.json', function(req, res){
- var id = connection.escape(req.params.id);
- //var id = req.params.id;
- console.log(`select * from entries where id = ${id}`);
- connection.query(`select * from entries where id = ${id}`, function(err, rows, fields) {
- if (err) throw err;
- res.status(200).json(rows[0]);
- });
- });
-
- // Update
- app.put('/api/v1/entries/:id.json', function(req, res){
- var id = connection.escape(req.params.id);
- console.log(req.body);
- // {"subject":"Two","content":"content2"}
- var subject = connection.escape(req.body.subject);
- var content = connection.escape(req.body.content);
- //UPDATE siq.entries SET content = 'foo', subject = 'bar' WHERE id = 12
- connection.query(`update entries set subject = ${subject}, content = ${content} where id = ${id}`, function(err, rows, fields) {
- if (err) throw err;
- });
- console.log("server update");
- res.sendStatus(204);
- });
-
- // Delete
- app.delete('/api/v1/entries/:id', function(req, res){
- var id = connection.escape(req.params.id);
- connection.query(`delete from entries where id = ${id}`, function(err, rows, fields) {
- if (err) throw err;
- });
- console.log("server delete");
- res.sendStatus(204);
- });
-
- */
+// END API METHODS
 
 //traditional webserver stuff for serving static files
 var WEB = __dirname + '/web';
 app.use(favicon(WEB + '/favicon.ico'));
-app.use(express.static(WEB, {maxAge:'12h'}));
+app.use(express.static(WEB, {maxAge: '12h'}));
 app.get('*', function(req, res) {
     res.header('Access-Control-Allow-Origin', '*');
-    res.status(404).sendFile(WEB + '/404Error.png');
+    res.status(404).sendFile(WEB + '/github404.png');
 });
 
 //var config = JSON.parse(fs.readFileSync("/dev/nodejs/resumeServer.json"));
-var port = process.env.port || 3000;
+var port = process.env.port || 8080;
 var server = app.listen(port);
 
 function gracefulShutdown(){
-    console.log('\nStarting Shutdown');
+    console.log("\nStarting shutdown...");
     server.close(function(){
-        console.log("before end call");
-        //connection.end();
-        console.log('\nShutdown Complete');
+        connection.end();
+        console.log('Shutdown complete.');
     });
 }
 
@@ -252,5 +243,6 @@ process.on('SIGTERM', function(){
 process.on('SIGINT', function(){
     gracefulShutdown();
 });
+
 
 console.log(`Listening on port ${port}`);

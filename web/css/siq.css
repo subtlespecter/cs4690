@@ -1,0 +1,10 @@
+.clickable{
+	cursor: pointer;
+}
+#newSiqForm{
+	padding: 20px;
+	padding-bottom: 10px;
+}
+pre{
+	margin-top: 10px;
+}
