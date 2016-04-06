@@ -1,9 +1,12 @@
 <html ng-app="siqApp">
+
+
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>SIQ</title>
 
-    
+    <link href='https://fonts.googleapis.com/css?family=Michroma' rel='stylesheet' type='text/css'>
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
@@ -16,23 +19,52 @@
     
     <link rel="stylesheet" href="/css/siq.css">
   </head>
+
+
   <body ng-controller="siqController as siq">
-    <div class="container">
-      <div class="row" ng-repeat="entry in siq.data">
-        <div class="panel panel-default">
-          <div class="panel-heading" ng-click="siq.getEntry($index)">
-            <span class="clickable">{{entry.subject}}</span>
-            <span class="pull-right">
-              <span class="glyphicon glyphicon-pencil text-info clickable" data-toggle="modal" data-target="#upsertModal" ng-click="siq.operation = 'Edit Entry'; siq.index = $index;"></span>
-              <span class="glyphicon glyphicon-trash text-danger clickable" ng-click="siq.deleteEntry($index)"></span>
-            </span>
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar navbar-custom">
+      <div class="container-fluid">
+        <div class="container">
+          
+          <div class="row">
+            <div class="navbar-header">
+              <h3 class="navbar-text">SIQ</h3>
+            </div>
+            <button id="newEntry" data-toggle="modal" data-target="#upsertModal" class="btn navbar-btn navbar-right" ng-click="siq.operation = 'New Entry'; siq.clear();">New Entry</button>
+            <span class="searchIcon glyphicon glyphicon-search navbar-right"></span>
+            <input type="search" class="form-control navbar-right" id="search" placeholder="Search" ng-model="siq.search"></input>
+            <button id="undo" class="btn navbar-btn navbar-right" hidden ng-show="siq.undo.length > 0" ng-click="siq.Undo()">Undo Delete <span class="badge">{{siq.undo.length}}</span></button>
           </div>
-          <div class="panel-body" ng-show="siq.panelNum == $index">{{entry.contents}}</div>
+        
+        </div>
+        
+      </div>
+    </nav>
+
+    <div class="container">
+      <div class="row" ng-repeat="entry in siq.data | filter:siq.search">
+        <div class="entry">
+          <hr/>
+            <div class="entryBox" ng-class="siq.panelNum == $index ? 'highlight-entry' : ''">
+              <div class="entry-heading" ng-click="siq.getEntry($index)">
+                <span class="arrow glyphicon glyphicon-menu-right" ng-show="siq.panelNum != $index"></span>
+                <span class="arrow glyphicon glyphicon-menu-down" ng-show="siq.panelNum == $index"></span>
+                <span class="clickable">{{entry.subject}}</span>
+                <span class="pull-right">
+                  <span class="edit-icon glyphicon glyphicon-pencil clickable" data-toggle="modal" data-target="#upsertModal" ng-click="siq.editClick($index)"></span>
+                  <span class="del-icon glyphicon glyphicon-trash clickable" ng-click="siq.deleteEntry($index)"></span>
+                </span>
+              </div>
+              <br/>
+              <div class="entry-body" ng-show="siq.panelNum == $index">{{entry.contents}}</div>
+            </div>
+          
         </div>
       </div>
       
       <div class="row">
-        <button data-toggle="modal" data-target="#upsertModal" class="btn btn-default" ng-click="siq.operation = 'New Entry'">New Entry</button>
+        
       </div>
 
       <!-- Modal -->
@@ -42,33 +74,29 @@
         <!-- Modal content-->
         <div class="modal-content">
           <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
             <h4 class="modal-title">{{siq.operation}}</h4>
           </div>
           <div class="modal-body">
             <div id="input-row" class="row">
               <form id="newSiqForm">
                 <div class="form-group">
-                  <input type="text" class="form-control" id="subject" placeholder="Subject" ng-model="siqSubject">
+                  <input type="text" class="form-control" id="subject" placeholder="Subject" ng-model="siq.siqSubject">
                 </div>
                 <div class="form-group">
-                  <textarea id="content" class="form-control" rows="3" placeholder="Content" ng-model="siqContents"></textarea>
+                  <textarea id="content" class="form-control" rows="3" placeholder="Content" ng-model="siq.siqContents"></textarea>
                 </div>
                 
               </form>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-default" data-dismiss="modal" ng-click="siq.upsertEntry(siqSubject,siqContents)">Submit</button>
+            <button type="submit" class="btn btn-default" data-dismiss="modal" ng-click="siq.upsertEntry(siq.siqSubject,siq.siqContents)">Submit</button>
             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
           </div>
         </div>
 
         </div>
       </div>
-
-
-
     </div>
     <pre>{{ siq.data | json }}</pre>
     <script src="scripts/siqController.js"></script>

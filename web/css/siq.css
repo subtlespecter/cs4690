@@ -8,3 +8,85 @@
 pre{
 	margin-top: 10px;
 }
+.navbar-custom{
+	background-color: rgba(95, 150, 162, 0.24);
+}
+.navbar-header{
+	font-family: 'Michroma', sans-serif;
+}
+
+.edit-icon{
+	color: #777;
+	margin-right: 10px;
+}
+
+.del-icon{
+	color: rgba(255, 0, 0, 0.54);
+}
+
+.entry-body{
+	font-size: 11pt;
+    color: #888;
+    width: 90%;
+    position: relative;
+    left: 20px;
+}
+
+.entryBox{
+	
+}
+
+.arrow{
+	font-size: 9pt;
+}
+
+#search{
+	position: relative;
+    top: 8px;
+    right: 10px;
+    width: 200px;
+}
+
+#newEntry{
+	position: relative;
+	right: 15px;
+	background-color: rgba(255, 255, 255, 0.77);
+	color: #66AFCC;
+	border-color: #66AFCC;
+}
+
+.modal-header{
+	background-color: rgba(95, 150, 162, 0.24);
+	font-family: 'Michroma', sans-serif;
+}
+
+.searchIcon{
+	position: relative;
+    top: 18px;
+    right: 35px;
+    z-index: 1;
+    color: #ddd;
+}
+
+#undo{
+	margin-right: 20px;
+	background-color: #F8FB79;
+	color: #949400;
+	border-color: #949400;
+}
+
+.entry-heading{
+	font-size: 12pt;
+}
+
+.highlight-entry{
+	border: 1px solid rgba(255, 228, 129, 0.65);
+    border-radius: 5px;
+    padding: 10px;
+    background-color: rgba(251, 255, 1, 0.15);
+}
+
+hr{
+	margin-bottom: 5px;
+	margin-top: 10px;
+}

@@ -12,15 +12,23 @@ app.controller('siqController', function($scope, $http){
 	siq.panelNum = -1;
 	siq.upsertEntry = function(subject, contents){
 		if(siq.operation === 'New Entry'){
-			siq.postEntry(subject, contents);
+			siq.postEntry(siq.data.length, subject, contents);
 		}
 		else{
 			siq.updateEntry(siq.index, subject, contents);
 		}
 	};
 
+	siq.editClick = function(index)
+	{
+		siq.operation = 'Edit Entry'; 
+		siq.index = index;
+		siq.siqSubject = siq.data[index].subject;
+		siq.siqContents = siq.data[index].contents;
+	};
+
 	siq.getEntry = function(index){
-		siq.panelNum = index;
+		siq.panelNum = siq.panelNum == index ? -1 : index;
 		var id = siq.data[index]._id;
 		console.log('getting entry ' + id);
 
@@ -33,9 +41,11 @@ app.controller('siqController', function($scope, $http){
 	siq.updateEntry = function(index, subject, contents){
 		var id = siq.data[index]._id;
 		var entry = {};
+		entry._id = id;
 		entry.subject = subject;
 		entry.contents = contents;
 		siq.data[index] = entry;
+		siq.clear();
 		$http.put('http://bsedgwick.com:8080/api/v2/entries/' + id + '.json', entry)
 			.then(function(response){
 				console.log("update finished with status '" + response.data + "'");
@@ -45,7 +55,15 @@ app.controller('siqController', function($scope, $http){
 	siq.deleteEntry = function(index){
 		console.log('deleting ' + index + '...');
 		var id = siq.data[index]._id;
-		siq.data.splice(index, 1);
+		var element = siq.data.splice(index, 1)[0];
+
+		$http.get('http://bsedgwick.com:8080/api/v2/entries/' + id + '.json')
+			.then(function(response){
+				element = response.data;
+				element.index = index;
+				siq.undo.push(element);
+			});
+
 		siq.panelNum = -1;
 		$http.delete('http://bsedgwick.com:8080/api/v2/entries/' + id)
 			.then(function(response){
@@ -53,19 +71,30 @@ app.controller('siqController', function($scope, $http){
 			});
 	};
 
-	siq.postEntry = function(subject, contents){
+	siq.postEntry = function(index, subject, contents){
 		// {"subject":"Something else","contents":"This is the contents for 'Something else'"}
 		var entry = {};
 		entry.subject = subject;
 		entry.contents = contents;
+		siq.clear();
 		console.log(entry);
 		$http.post('http://bsedgwick.com:8080/api/v2/entries.json', entry)
 			.then(function(res){
 				console.log(`success:${res.data}`);
 				entry._id = res.data;
-				siq.data.push(entry);
+				siq.data.splice(index, 0, entry);
 			}, function(err){
 				console.log(`error: ${err.data}`);
 			});
+	};
+
+	siq.Undo = function(){
+		var element = siq.undo.pop();
+		siq.postEntry(element.index, element.subject, element.contents);
+	};
+
+	siq.clear = function(){
+		siq.siqContents = "";
+		siq.siqSubject = "";
 	};
 });
