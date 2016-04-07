@@ -10,6 +10,7 @@ pre{
 }
 .navbar-custom{
 	background-color: rgba(95, 150, 162, 0.24);
+	border-radius: 0px;
 }
 .navbar-header{
 	font-family: 'Michroma', sans-serif;
@@ -33,7 +34,7 @@ pre{
 }
 
 .entryBox{
-	
+	padding: 10px;
 }
 
 .arrow{
@@ -80,13 +81,15 @@ pre{
 }
 
 .highlight-entry{
-	border: 1px solid rgba(255, 228, 129, 0.65);
-    border-radius: 5px;
-    padding: 10px;
-    background-color: rgba(251, 255, 1, 0.15);
+    border-radius: 3px;
+    background-color: white;
 }
 
 hr{
-	margin-bottom: 5px;
-	margin-top: 10px;
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+
+.darken-background{
+	background-color: #EFEFEF;
 }

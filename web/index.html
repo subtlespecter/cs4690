@@ -31,10 +31,10 @@
             <div class="navbar-header">
               <h3 class="navbar-text">SIQ</h3>
             </div>
-            <button id="newEntry" data-toggle="modal" data-target="#upsertModal" class="btn navbar-btn navbar-right" ng-click="siq.operation = 'New Entry'; siq.clear();">New Entry</button>
+            <button id="newEntry" data-toggle="modal" data-target="#upsertModal" class="btn navbar-btn navbar-right" ng-click="siq.operation = 'New Entry'; siq.clear()">New Entry</button>
             <span class="searchIcon glyphicon glyphicon-search navbar-right"></span>
             <input type="search" class="form-control navbar-right" id="search" placeholder="Search" ng-model="siq.search"></input>
-            <button id="undo" class="btn navbar-btn navbar-right" hidden ng-show="siq.undo.length > 0" ng-click="siq.Undo()">Undo Delete <span class="badge">{{siq.undo.length}}</span></button>
+            <button id="undo" class="btn navbar-btn navbar-right" hidden ng-show="siq.undo.length > 0" ng-click="siq.Undo(); $event.stopPropagation()">Undo Delete <span class="badge">{{siq.undo.length}}</span></button>
           </div>
         
         </div>
@@ -46,14 +46,14 @@
       <div class="row" ng-repeat="entry in siq.data | filter:siq.search">
         <div class="entry">
           <hr/>
-            <div class="entryBox" ng-class="siq.panelNum == $index ? 'highlight-entry' : ''">
+            <div class="entryBox" >
               <div class="entry-heading" ng-click="siq.getEntry($index)">
                 <span class="arrow glyphicon glyphicon-menu-right" ng-show="siq.panelNum != $index"></span>
                 <span class="arrow glyphicon glyphicon-menu-down" ng-show="siq.panelNum == $index"></span>
                 <span class="clickable">{{entry.subject}}</span>
                 <span class="pull-right">
-                  <span class="edit-icon glyphicon glyphicon-pencil clickable" data-toggle="modal" data-target="#upsertModal" ng-click="siq.editClick($index)"></span>
-                  <span class="del-icon glyphicon glyphicon-trash clickable" ng-click="siq.deleteEntry($index)"></span>
+                  <span class="edit-icon glyphicon glyphicon-pencil clickable" title="Edit Entry" data-toggle="modal" data-target="#upsertModal" ng-click="siq.editClick($index)"></span>
+                  <span class="del-icon glyphicon glyphicon-trash clickable" title="Delete Entry" ng-click="siq.deleteEntry($index)"></span>
                 </span>
               </div>
               <br/>
