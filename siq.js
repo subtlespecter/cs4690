@@ -33,15 +33,6 @@ app.use(allowCrossDomain);
 
 app.use('/', mongoDao);
 
-//app.use('/foo', mysqlDao);
-// MongoDB Connection Initialization.
-
-
-
-
-/**************************************************************************************************************************************/
-
-
 
 //traditional webserver stuff for serving static files
 var WEB = __dirname + '/web';
