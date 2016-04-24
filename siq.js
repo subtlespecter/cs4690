@@ -5,7 +5,6 @@ console.log('Loading...');
 var fs = require('fs');
 var express = require('express');
 var mongoDao = require('./mongoDao');
-var mysqlDao = require('./mysqlDao');
 
 //modules below are express middleware
 var bodyParser = require('body-parser');
