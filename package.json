@@ -4,12 +4,13 @@
   "description": "cs4690 Class Project",
   "main": "siq.js",
   "dependencies": {
-    "morgan": "^1.7.0",
-    "mysql": "^2.10.2",
+    "body-parser": "^1.15.0",
     "compression": "^1.6.1",
     "express": "^4.13.4",
-    "body-parser": "^1.15.0",
-    "underscore": "^1.8.3",
-    "serve-favicon": "^2.3.0"
+    "mongodb": "^2.1.17",
+    "morgan": "^1.7.0",
+    "mysql": "^2.10.2",
+    "serve-favicon": "^2.3.0",
+    "underscore": "^1.8.3"
   }
 }
