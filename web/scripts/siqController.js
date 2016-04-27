@@ -4,7 +4,7 @@ app.controller('siqController', function($scope, $http){
 	var siq = this;
 	siq.undo = [];
 	
-	$http.get('http://bsedgwick.com:8080/api/v2/entries.json')
+	$http.get('http://localhost:8080/api/v2/entries.json')
 		.then(function(response){
 			siq.data = response.data;
 		});
@@ -32,7 +32,7 @@ app.controller('siqController', function($scope, $http){
 		var id = siq.data[index]._id;
 		console.log('getting entry ' + id);
 
-		$http.get('http://bsedgwick.com:8080/api/v2/entries/' + id + '.json')
+		$http.get('http://localhost:8080/api/v2/entries/' + id + '.json')
 			.then(function(response){
 				siq.data[index] = response.data;
 			});
@@ -46,7 +46,7 @@ app.controller('siqController', function($scope, $http){
 		entry.contents = contents;
 		siq.data[index] = entry;
 		siq.clear();
-		$http.put('http://bsedgwick.com:8080/api/v2/entries/' + id + '.json', entry)
+		$http.put('http://localhost:8080/api/v2/entries/' + id + '.json', entry)
 			.then(function(response){
 				console.log("update finished with status '" + response.data + "'");
 			});
@@ -57,7 +57,7 @@ app.controller('siqController', function($scope, $http){
 		var id = siq.data[index]._id;
 		var element = siq.data.splice(index, 1)[0];
 
-		$http.get('http://bsedgwick.com:8080/api/v2/entries/' + id + '.json')
+		$http.get('http://localhost:8080/api/v2/entries/' + id + '.json')
 			.then(function(response){
 				element = response.data;
 				element.index = index;
@@ -65,7 +65,7 @@ app.controller('siqController', function($scope, $http){
 			});
 
 		siq.panelNum = -1;
-		$http.delete('http://bsedgwick.com:8080/api/v2/entries/' + id)
+		$http.delete('http://localhost:8080/api/v2/entries/' + id)
 			.then(function(response){
 				console.log("delete finished with status '" + response.data + "'");
 			});
@@ -78,7 +78,7 @@ app.controller('siqController', function($scope, $http){
 		entry.contents = contents;
 		siq.clear();
 		console.log(entry);
-		$http.post('http://bsedgwick.com:8080/api/v2/entries.json', entry)
+		$http.post('http://localhost:8080/api/v2/entries.json', entry)
 			.then(function(res){
 				console.log(`success:${res.data}`);
 				entry._id = res.data;

@@ -49,7 +49,6 @@ var server = app.listen(port);
 function gracefulShutdown(){
     console.log("\nStarting shutdown...");
     server.close(function(){
-        connection.end();
         console.log('Shutdown complete.');
     });
 }
