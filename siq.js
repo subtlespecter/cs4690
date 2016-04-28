@@ -4,6 +4,7 @@
 console.log('Loading...');
 var fs = require('fs');
 var express = require('express');
+var socketio = require('socket.io');
 var app = express();
 var mongoDao = require('./mongoDao');
 var redisDao = require('./redisDao');
@@ -13,8 +14,6 @@ var bodyParser = require('body-parser');
 var logger = require('morgan');
 var compression = require('compression');
 var favicon = require('serve-favicon');
-
-
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -46,6 +45,15 @@ app.get('*', function(req, res) {
 //var config = JSON.parse(fs.readFileSync("/dev/nodejs/resumeServer.json"));
 var port = process.env.port || 8080;
 var server = app.listen(port);
+
+socketio.listen(server).sockets.on('connection', function(socket){
+    console.log('client connected');
+    socket.broadcast.emit('message', 'new client connected');
+    socket.on('message', function(msg){
+        console.log('Message received: ' + msg);
+        socket.broadcast.emit('message', msg);
+    });
+});
 
 function gracefulShutdown(){
     console.log("\nStarting shutdown...");

@@ -60,26 +60,26 @@
       <div class="row" ng-repeat="entry in siq.data | filter:siq.search">
         <div class="entry">
           <hr/>
-            <div class="entryBox" >
-              <div class="entry-heading" ng-click="siq.getEntry($index)">
-                <span class="arrow glyphicon glyphicon-menu-right" ng-show="siq.panelNum != $index"></span>
-                <span class="arrow glyphicon glyphicon-menu-down" ng-show="siq.panelNum == $index"></span>
-                <span class="clickable">{{entry.subject}}</span>
-                <span class="pull-right">
-                  <span class="edit-icon glyphicon glyphicon-pencil clickable" title="Edit Entry" data-toggle="modal" data-target="#upsertModal" ng-click="siq.panelNum = $index;siq.editClick($index)"></span>
-                  <span class="del-icon glyphicon glyphicon-trash clickable" title="Delete Entry" ng-click="siq.panelNum = $index; siq.deleteEntry($index)"></span>
-                </span>
-              </div>
-              <br/>
-              <div class="entry-body" ng-show="siq.panelNum == $index">{{entry.contents}}</div>
+          <div class="entryBox" >
+            <div class="entry-heading" ng-click="siq.getEntry($index)">
+              <span class="arrow glyphicon glyphicon-menu-right" ng-show="siq.panelNum != $index"></span>
+              <span class="arrow glyphicon glyphicon-menu-down" ng-show="siq.panelNum == $index"></span>
+              <span class="clickable">{{entry.subject}}</span>
+              <span class="pull-right">
+                <span class="edit-icon glyphicon glyphicon-pencil clickable" title="Edit Entry" data-toggle="modal" data-target="#upsertModal" ng-click="siq.panelNum = $index;siq.editClick($index)"></span>
+                <span class="del-icon glyphicon glyphicon-trash clickable" title="Delete Entry" ng-click="siq.panelNum = $index; siq.deleteEntry($index)"></span>
+              </span>
             </div>
-          
+            <br/>
+            <div class="entry-body" ng-show="siq.panelNum == $index">{{entry.contents}}</div>
+          </div>
         </div>
       </div>
       
       <div class="row">
         
       </div>
+
 
       <!-- Modal -->
       <div id="upsertModal" class="modal fade" role="dialog">
@@ -112,9 +112,18 @@
         </div>
       </div>
     </div>
+
+
+    <div id="chatWindow" class="container">
+      <div><textarea id="chatText" rows="10"></textarea></div>
+      <div><input id="chatInput"></input></div>
+    </div>
+
     <pre>{{ siq.data | json }}</pre>
     <script src="scripts/siqController.js"></script>
     <script src="scripts/modal.js"></script>
     <script src="scripts/dropdown.js"></script>
+    <script src="scripts/socket.io.js"></script>
+    <script src="scripts/socketClient.js"></script>
   </body>
 </html>
