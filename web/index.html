@@ -66,8 +66,8 @@
                 <span class="arrow glyphicon glyphicon-menu-down" ng-show="siq.panelNum == $index"></span>
                 <span class="clickable">{{entry.subject}}</span>
                 <span class="pull-right">
-                  <span class="edit-icon glyphicon glyphicon-pencil clickable" title="Edit Entry" data-toggle="modal" data-target="#upsertModal" ng-click="siq.editClick($index)"></span>
-                  <span class="del-icon glyphicon glyphicon-trash clickable" title="Delete Entry" ng-click="siq.deleteEntry($index)"></span>
+                  <span class="edit-icon glyphicon glyphicon-pencil clickable" title="Edit Entry" data-toggle="modal" data-target="#upsertModal" ng-click="siq.panelNum = $index;siq.editClick($index)"></span>
+                  <span class="del-icon glyphicon glyphicon-trash clickable" title="Delete Entry" ng-click="siq.panelNum = $index; siq.deleteEntry($index)"></span>
                 </span>
               </div>
               <br/>
