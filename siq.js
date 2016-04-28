@@ -4,7 +4,9 @@
 console.log('Loading...');
 var fs = require('fs');
 var express = require('express');
+var app = express();
 var mongoDao = require('./mongoDao');
+var redisDao = require('./redisDao');
 
 //modules below are express middleware
 var bodyParser = require('body-parser');
@@ -12,7 +14,7 @@ var logger = require('morgan');
 var compression = require('compression');
 var favicon = require('serve-favicon');
 
-var app = express();
+
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
@@ -30,8 +32,7 @@ app.use(compression());
 
 app.use(allowCrossDomain);
 
-app.use('/', mongoDao);
-
+app.use('/', [mongoDao, redisDao]);
 
 //traditional webserver stuff for serving static files
 var WEB = __dirname + '/web';
@@ -39,7 +40,7 @@ app.use(favicon(WEB + '/favicon.ico'));
 app.use(express.static(WEB, {maxAge: '12h'}));
 app.get('*', function(req, res) {
     res.header('Access-Control-Allow-Origin', '*');
-    res.status(404).sendFile(WEB + '/github404.png');
+    res.status(404).send();
 });
 
 //var config = JSON.parse(fs.readFileSync("/dev/nodejs/resumeServer.json"));

@@ -56,6 +56,34 @@ pre{
 	border-color: #66AFCC;
 }
 
+#dLabel{
+	position: relative;
+	right: 15px;
+	background-color: rgba(255, 255, 255, 0.77);
+	color: #66AFCC;
+	border-color: #66AFCC;
+	margin-left: 10px;
+}
+
+#dbMenu{
+	right: 15px;
+}
+
+#dbMenu > li{
+	text-align: right;
+	padding: 5px 10px;
+	cursor: pointer;
+}
+
+#dbMenu > li:hover{
+	background-color: rgba(95, 150, 162, 0.24);
+}
+
+#dbMenu > li span{
+	margin-right: 5px;
+	color: #66AFCC;
+}
+
 .modal-header{
 	background-color: rgba(95, 150, 162, 0.24);
 	font-family: 'Michroma', sans-serif;

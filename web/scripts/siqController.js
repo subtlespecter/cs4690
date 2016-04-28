@@ -3,13 +3,16 @@ app.controller('siqController', function($scope, $http){
 	
 	var siq = this;
 	siq.undo = [];
-	
-	$http.get('http://localhost:8080/api/v2/entries.json')
+
+	siq.index = -1;
+	siq.panelNum = -1;
+	siq.selectedDB = 'V2'; // Default is to use MongoDB api endpoints.
+
+	$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries.json`)
 		.then(function(response){
 			siq.data = response.data;
 		});
-	siq.index = -1;
-	siq.panelNum = -1;
+
 	siq.upsertEntry = function(subject, contents){
 		if(siq.operation === 'New Entry'){
 			siq.postEntry(siq.data.length, subject, contents);
@@ -29,24 +32,24 @@ app.controller('siqController', function($scope, $http){
 
 	siq.getEntry = function(index){
 		siq.panelNum = siq.panelNum == index ? -1 : index;
-		var id = siq.data[index]._id;
+		var id = siq.data[index]._id || siq.panelNum;
 		console.log('getting entry ' + id);
 
-		$http.get('http://localhost:8080/api/v2/entries/' + id + '.json')
+		$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id + '.json')
 			.then(function(response){
 				siq.data[index] = response.data;
 			});
 	};
 
 	siq.updateEntry = function(index, subject, contents){
-		var id = siq.data[index]._id;
+		var id = siq.data[index]._id  || siq.panelNum;
 		var entry = {};
 		entry._id = id;
 		entry.subject = subject;
 		entry.contents = contents;
 		siq.data[index] = entry;
 		siq.clear();
-		$http.put('http://localhost:8080/api/v2/entries/' + id + '.json', entry)
+		$http.put(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id + '.json', entry)
 			.then(function(response){
 				console.log("update finished with status '" + response.data + "'");
 			});
@@ -54,10 +57,10 @@ app.controller('siqController', function($scope, $http){
 
 	siq.deleteEntry = function(index){
 		console.log('deleting ' + index + '...');
-		var id = siq.data[index]._id;
+		var id = siq.data[index]._id || siq.panelNum - 1;
 		var element = siq.data.splice(index, 1)[0];
 
-		$http.get('http://localhost:8080/api/v2/entries/' + id + '.json')
+		$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id + '.json')
 			.then(function(response){
 				element = response.data;
 				element.index = index;
@@ -65,7 +68,7 @@ app.controller('siqController', function($scope, $http){
 			});
 
 		siq.panelNum = -1;
-		$http.delete('http://localhost:8080/api/v2/entries/' + id)
+		$http.delete(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id)
 			.then(function(response){
 				console.log("delete finished with status '" + response.data + "'");
 			});
@@ -78,10 +81,12 @@ app.controller('siqController', function($scope, $http){
 		entry.contents = contents;
 		siq.clear();
 		console.log(entry);
-		$http.post('http://localhost:8080/api/v2/entries.json', entry)
+		$http.post(`http://localhost:8080/api/${siq.selectedDB}/entries.json`, entry)
 			.then(function(res){
 				console.log(`success:${res.data}`);
-				entry._id = res.data;
+				if(siq.selectedDB === 'V2'){
+					entry._id = res.data;
+				}
 				siq.data.splice(index, 0, entry);
 			}, function(err){
 				console.log(`error: ${err.data}`);
@@ -96,5 +101,13 @@ app.controller('siqController', function($scope, $http){
 	siq.clear = function(){
 		siq.siqContents = "";
 		siq.siqSubject = "";
+	};
+
+	siq.changeDB = function(newDB){
+		siq.selectedDB = newDB;
+		$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries.json`)
+		.then(function(response){
+			siq.data = response.data;
+		});
 	};
 });

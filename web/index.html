@@ -15,7 +15,7 @@
 
     <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
-    <script src="scripts/modal.js"></script>
+    
     
     <link rel="stylesheet" href="/css/siq.css">
   </head>
@@ -31,9 +31,23 @@
             <div class="navbar-header">
               <h3 class="navbar-text">SIQ</h3>
             </div>
+
+            <div class="dropdown navbar-right">
+              <button id="dLabel" class="btn navbar-btn" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Select Database
+                <span class="caret"></span>
+              </button>
+              <ul id="dbMenu" class="dropdown-menu" aria-labelledby="dLabel">
+                <li ng-click="siq.changeDB('V2')"><span class="glyphicon glyphicon-ok" ng-show="siq.selectedDB === 'V2'"></span>MongoDB</li>
+                <li ng-click="siq.changeDB('V3')"><span class="glyphicon glyphicon-ok" ng-show="siq.selectedDB === 'V3'"></span>Redis</li>
+              </ul>
+            </div>
+
             <button id="newEntry" data-toggle="modal" data-target="#upsertModal" class="btn navbar-btn navbar-right" ng-click="siq.operation = 'New Entry'; siq.clear()">New Entry</button>
             <span class="searchIcon glyphicon glyphicon-search navbar-right"></span>
             <input type="search" class="form-control navbar-right" id="search" placeholder="Search" ng-model="siq.search"></input>
+
+            
             <button id="undo" class="btn navbar-btn navbar-right" hidden ng-show="siq.undo.length > 0" ng-click="siq.Undo(); $event.stopPropagation()">Undo Delete <span class="badge">{{siq.undo.length}}</span></button>
           </div>
         
@@ -100,5 +114,7 @@
     </div>
     <pre>{{ siq.data | json }}</pre>
     <script src="scripts/siqController.js"></script>
+    <script src="scripts/modal.js"></script>
+    <script src="scripts/dropdown.js"></script>
   </body>
 </html>
