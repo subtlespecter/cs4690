@@ -8,7 +8,7 @@ app.controller('siqController', function($scope, $http){
 	siq.panelNum = -1;
 	siq.selectedDB = 'V2'; // Default is to use MongoDB api endpoints.
 
-	$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries.json`)
+	$http.get(`/api/${siq.selectedDB}/entries.json`)
 		.then(function(response){
 			siq.data = response.data;
 		});
@@ -35,7 +35,7 @@ app.controller('siqController', function($scope, $http){
 		var id = siq.data[index]._id || siq.panelNum;
 		console.log('getting entry ' + id);
 
-		$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id + '.json')
+		$http.get(`/api/${siq.selectedDB}/entries/` + id + '.json')
 			.then(function(response){
 				siq.data[index] = response.data;
 			});
@@ -49,7 +49,7 @@ app.controller('siqController', function($scope, $http){
 		entry.contents = contents;
 		siq.data[index] = entry;
 		siq.clear();
-		$http.put(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id + '.json', entry)
+		$http.put(`/api/${siq.selectedDB}/entries/` + id + '.json', entry)
 			.then(function(response){
 				console.log("update finished with status '" + response.data + "'");
 			});
@@ -60,7 +60,7 @@ app.controller('siqController', function($scope, $http){
 		var id = siq.data[index]._id || siq.panelNum - 1;
 		var element = siq.data.splice(index, 1)[0];
 
-		$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id + '.json')
+		$http.get(`/api/${siq.selectedDB}/entries/` + id + '.json')
 			.then(function(response){
 				element = response.data;
 				element.index = index;
@@ -68,7 +68,7 @@ app.controller('siqController', function($scope, $http){
 			});
 
 		siq.panelNum = -1;
-		$http.delete(`http://localhost:8080/api/${siq.selectedDB}/entries/` + id)
+		$http.delete(`/api/${siq.selectedDB}/entries/` + id)
 			.then(function(response){
 				console.log("delete finished with status '" + response.data + "'");
 			});
@@ -81,7 +81,7 @@ app.controller('siqController', function($scope, $http){
 		entry.contents = contents;
 		siq.clear();
 		console.log(entry);
-		$http.post(`http://localhost:8080/api/${siq.selectedDB}/entries.json`, entry)
+		$http.post(`/api/${siq.selectedDB}/entries.json`, entry)
 			.then(function(res){
 				console.log(`success:${res.data}`);
 				if(siq.selectedDB === 'V2'){
@@ -105,7 +105,7 @@ app.controller('siqController', function($scope, $http){
 
 	siq.changeDB = function(newDB){
 		siq.selectedDB = newDB;
-		$http.get(`http://localhost:8080/api/${siq.selectedDB}/entries.json`)
+		$http.get(`/api/${siq.selectedDB}/entries.json`)
 		.then(function(response){
 			siq.data = response.data;
 		});
